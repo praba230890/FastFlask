@@ -3,7 +3,7 @@ from main import FastFlask, run_server, Response
 
 app = FastFlask()
 
-@app.route("/")
+@app.route("/", methods=['POST'])
 async def home(response: Response):
     response.headers[b"X-Custom-Header"] = b"Yeezy"
     return {3:30}

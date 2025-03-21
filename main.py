@@ -1,4 +1,5 @@
 from typing import Callable, Dict
+from collections import UserList
 
 import uvicorn
 from starlette.types import Receive, Scope, Send
@@ -6,12 +7,14 @@ from starlette.types import Receive, Scope, Send
 from response import Response
 class FastFlask:
     def __init__(self):
-        self.routes: Dict[str, Callable] = {}
+        self.routes: Dict[str, Dict[str, Callable | UserList[str]]] = {}
 
-    def route(self, path: str):
+    def route(self, path: str, methods: UserList[str]=["GET", "POST", "PUT", "DELETE", "UPDATE", "OPTION"]):
         """Decorator to register a route."""
         def decorator(func: Callable):
-            self.routes[path] = func
+            self.routes[path] = {}
+            self.routes[path]["handler"] = func
+            self.routes[path]["methods"] = methods
             return func
         return decorator
 
@@ -19,7 +22,7 @@ class FastFlask:
         """ASGI entry point."""
         assert scope["type"] == "http"
         path = scope["path"]
-        handler = self.routes.get(path, self.default_response)
+        handler = self.routes.get(path)["handler"] if self.routes.get(path) and scope["method"] in self.routes.get(path)["methods"] else self.default_response
         response = Response()
         result = await handler(response)  # Pass Response object
         
