@@ -1,0 +1,10 @@
+[project]
+name = "fast-flask"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "starlette>=0.46.1",
+    "uvicorn>=0.34.0",
+]
