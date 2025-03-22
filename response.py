@@ -1,3 +1,7 @@
+"""
+    Module for the response and response related things   
+"""
+
 from typing import Any, Dict
 import json
 
@@ -5,6 +9,15 @@ from starlette.types import Send
 
 
 class Response:
+    """
+        The class for creating a response object
+        
+        Args:
+            body
+            status
+            headers
+        
+    """
     def __init__(self, body: Any = "", status: int = 200, headers: Dict[bytes, bytes] = None):
         self.body = body if isinstance(body, bytes) else str(body).encode()
         self.status = status
@@ -18,6 +31,11 @@ class Response:
         self.headers[b"content-type"] = b"application/json"
 
     async def send(self, send: Send):
+        """
+
+        Args:
+            send (Send): _description_
+        """
         await send({
             "type": "http.response.start",
             "status": self.status,
