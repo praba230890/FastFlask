@@ -1,4 +1,5 @@
-from main import FastFlask, run_server, Response, request
+from fast_flask import FastFlask, run_server, Response
+from fast_flask import request
 
 
 app = FastFlask()

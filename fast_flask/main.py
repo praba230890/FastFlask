@@ -1,30 +1,17 @@
 """
-   Module that has the main class for creating the application object - FastFlask 
+    Module that has the main class for creating the application object - FastFlask 
 """
 
 from typing import Callable, Dict
 from collections import UserList
-from contextvars import ContextVar
 
 import uvicorn
 from starlette.types import Receive, Scope, Send
 
-from response import Response
-from request import Request
+from fast_flask.response import Response
+from fast_flask.request import Request, current_request
 
-current_request: ContextVar[Request] = ContextVar("current_request")
 
-class RequestProxy:
-    """
-        A proxy class to handle request object attribute access
-    """
-    def __getattr__(self, name):
-        request = current_request.get(None)
-        if request is None:
-            raise RuntimeError(
-                "Request object is not set. Make sure you're inside a request context."
-                )
-        return getattr(request, name)
 
 class FastFlask:
     """
@@ -81,4 +68,4 @@ def run_server(app: FastFlask, host="127.0.0.1", port=8000):
     """
     uvicorn.run(app, host=host, port=port)
 
-request = RequestProxy()
+
