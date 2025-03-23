@@ -22,6 +22,8 @@ class Response:
         self.body = body if isinstance(body, bytes) else str(body).encode()
         self.status = status
         self.headers = {b"content-type": b"text/plain"}
+        # self.cookies = {"SID": "31d4d96e407aad42", "TEST": "COOKIE"}
+        self.cookies = {}
         if headers:
             self.headers.update(headers)
 
@@ -47,10 +49,15 @@ class Response:
         Args:
             send (Send): _description_
         """
+        headers = list(self.headers.items())
+        # https://datatracker.ietf.org/doc/html/rfc6265 
+        print("cookies ---------", self.cookies)
+        for k, v in self.cookies.items():
+            headers.append(("Set-Cookie", k+"="+v ))
         await send({
             "type": "http.response.start",
             "status": self.status,
-            "headers": list(self.headers.items()),
+            "headers": headers,
         })
         await send({
             "type": "http.response.body",

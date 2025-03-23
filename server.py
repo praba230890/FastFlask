@@ -8,6 +8,8 @@ app = FastFlask()
 async def home(response: Response):
     response.headers[b"X-Custom-Header"] = b"Yeezy"
     print(request.method)
+    print("cookies in server route - ", request.cookies)
+    response.cookies["MAD"] = "Man"
     response.body = {3:30}
     # return response
     return {3:40}

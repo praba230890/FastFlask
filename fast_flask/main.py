@@ -40,7 +40,7 @@ class FastFlask:
             handler = self.routes.get(path)["handler"] 
         else:
             handler = self.default_response
-        current_request.set(Request(scope))
+        current_request.set(Request.from_scope(scope))
         response = Response()
         result = await handler(response)
         if not isinstance(result, Response):
