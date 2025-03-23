@@ -25,9 +25,20 @@ class Response:
         if headers:
             self.headers.update(headers)
 
+    @property
+    def body(self):
+        return self._body
+
+    @body.setter
+    def body(self, result):
+        if isinstance(result, dict):
+            self.set_json(result)
+        elif isinstance(result, str):
+            self._body = result.encode()
+
     def set_json(self, data: Dict[Any, Any]):
         """Set response body as JSON"""
-        self.body = json.dumps(data).encode()
+        self._body = json.dumps(data).encode()
         self.headers[b"content-type"] = b"application/json"
 
     async def send(self, send: Send):
@@ -43,5 +54,5 @@ class Response:
         })
         await send({
             "type": "http.response.body",
-            "body": self.body,
+            "body": self._body,
         })

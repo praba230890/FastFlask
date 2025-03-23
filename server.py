@@ -8,7 +8,9 @@ app = FastFlask()
 async def home(response: Response):
     response.headers[b"X-Custom-Header"] = b"Yeezy"
     print(request.method)
-    return {3:30}
+    response.body = {3:30}
+    # return response
+    return {3:40}
 
 
 run_server(app)

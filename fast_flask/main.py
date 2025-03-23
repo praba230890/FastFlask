@@ -43,10 +43,8 @@ class FastFlask:
         current_request.set(Request(scope))
         response = Response()
         result = await handler(response)
-        if isinstance(result, dict):
-            response.set_json(result)
-        elif isinstance(result, str):
-            response.body = result.encode()
+        if not isinstance(result, Response):
+            response.body = result
         await response.send(send)
 
     async def default_response(self, response: Response):
@@ -67,5 +65,3 @@ def run_server(app: FastFlask, host="127.0.0.1", port=8000):
         port (int, optional): _description_. Defaults to 8000.
     """
     uvicorn.run(app, host=host, port=port)
-
-
