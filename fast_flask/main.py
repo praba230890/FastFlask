@@ -11,6 +11,7 @@ from starlette.types import Receive, Scope, Send
 from fast_flask.response import Response
 from fast_flask.request import Request, current_request
 
+from fast_flask.router import Router
 
 
 class FastFlask:
@@ -19,16 +20,14 @@ class FastFlask:
         This app object is what will be fed into the uvicorn as an interface to the ASGI server
     """
     def __init__(self):
-        self.routes: Dict[str, Dict[str, Callable | UserList[str]]] = {}
+        self.router = Router()
 
     def route(self, 
                 path: str,
                 methods: UserList[str]=("GET", "POST", "PUT", "DELETE", "UPDATE", "OPTION")):
         """Decorator to register a route."""
         def decorator(func: Callable):
-            self.routes[path] = {}
-            self.routes[path]["handler"] = func
-            self.routes[path]["methods"] = methods
+            self.router.add_route(path, func, methods)
             return func
         return decorator
 
@@ -36,9 +35,8 @@ class FastFlask:
         """ASGI entry point."""
         assert scope["type"] == "http"
         path = scope["path"]
-        if self.routes.get(path) and scope["method"] in self.routes.get(path)["methods"]:
-            handler = self.routes.get(path)["handler"] 
-        else:
+        handler, params = self.router.match(path, scope["method"])
+        if not handler:
             handler = self.default_response
         current_request.set(Request.from_scope(scope))
         response = Response()

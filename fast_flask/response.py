@@ -22,7 +22,6 @@ class Response:
         self.body = body if isinstance(body, bytes) else str(body).encode()
         self.status = status
         self.headers = {b"content-type": b"text/plain"}
-        # self.cookies = {"SID": "31d4d96e407aad42", "TEST": "COOKIE"}
         self.cookies = {}
         if headers:
             self.headers.update(headers)
@@ -37,6 +36,8 @@ class Response:
             self.set_json(result)
         elif isinstance(result, str):
             self._body = result.encode()
+        elif isinstance(result, bytes):
+            self._body = result
 
     def set_json(self, data: Dict[Any, Any]):
         """Set response body as JSON"""
