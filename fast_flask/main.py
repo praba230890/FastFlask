@@ -10,9 +10,7 @@ from starlette.types import Receive, Scope, Send
 
 from fast_flask.response import Response
 from fast_flask.request import Request, current_request
-
 from fast_flask.router import Router
-
 
 class FastFlask:
     """

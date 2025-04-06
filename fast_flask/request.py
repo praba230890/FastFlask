@@ -3,6 +3,7 @@
 """
 from typing import Dict, Self
 from contextvars import ContextVar
+from urllib.parse import parse_qs
 
 from starlette.types import Scope
 
@@ -10,11 +11,12 @@ class Request:
     """
         Request object that can be used in the routes
     """
-    def __init__(self,  method: str, path: str, headers: Dict[str, str], cookies: Dict[str, str]):
+    def __init__(self,  method: str, path: str, headers: Dict[str, str], cookies: Dict[str, str], query_params):
         self.method = method
         self.path = path
         self.headers = headers
         self.cookies = cookies
+        self.query_params = query_params
 
     @classmethod
     def from_scope(cls, scope: Scope) -> Self:
@@ -29,7 +31,7 @@ class Request:
         method = scope["method"]
         path = scope["path"]
         headers = scope["headers"]
-        print(headers)
+        query_params = parse_qs(scope["query_string"])
         cookies = {}
         # https://datatracker.ietf.org/doc/html/rfc6265 
         for header in headers:
@@ -39,7 +41,7 @@ class Request:
                 for cookie in _cookies.split(";"):
                     print(cookie)
                     cookies[cookie.split('=', maxsplit=1)[0]] = cookie.split('=')[1]
-        return cls(method, path, headers, cookies)
+        return cls(method, path, headers, cookies, query_params)
 
 current_request: ContextVar[Request] = ContextVar("current_request")
 
