@@ -15,5 +15,11 @@ async def home(response: Response):
     # return response
     return {3:40}
 
+@app.route("/users/{id}", methods=('GET'))
+async def user(response: Response, id: int):
+    print(request.method)
+    print(request.query_params)
+    print("id in server route - ", id)
+    return {"id": 100}
 
 run_server(app)

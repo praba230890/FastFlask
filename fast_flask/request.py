@@ -31,7 +31,7 @@ class Request:
         method = scope["method"]
         path = scope["path"]
         headers = scope["headers"]
-        query_params = parse_qs(scope["query_string"])
+        query_params = Request.parse_query_params(scope["query_string"])
         cookies = {}
         # https://datatracker.ietf.org/doc/html/rfc6265 
         for header in headers:
@@ -42,6 +42,20 @@ class Request:
                     print(cookie)
                     cookies[cookie.split('=', maxsplit=1)[0]] = cookie.split('=')[1]
         return cls(method, path, headers, cookies, query_params)
+    
+    @staticmethod
+    def parse_query_params(query_string):
+        query_params = parse_qs(query_string)
+        _query_params = {}
+        for k, v in query_params.items():
+            vals = []
+            for i in v:
+                if i.isdigit():
+                    vals.append(int(i))
+                else:
+                    vals.append(i.decode("utf-8"))
+            _query_params[k.decode("utf-8")] = vals
+        return _query_params
 
 current_request: ContextVar[Request] = ContextVar("current_request")
 

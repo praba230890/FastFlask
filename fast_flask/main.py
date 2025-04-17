@@ -38,7 +38,7 @@ class FastFlask:
             handler = self.default_response
         current_request.set(Request.from_scope(scope))
         response = Response()
-        result = await handler(response)
+        result = await handler(response, **params)
         if not isinstance(result, Response):
             response.body = result
         await response.send(send)

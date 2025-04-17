@@ -21,5 +21,6 @@ class Router:
             match = pattern.match(url)
             if match and method in methods:
                 params = match.groupdict()
+                params = {str(k): int(v) if v.isdigit() else v for k, v in params.items()} # have to revisit to handle the types
                 return handler, params
         return None, None
