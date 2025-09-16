@@ -12,6 +12,7 @@ class Router:
         pattern = re.sub(r"{(\w+)}", r"(?P<\1>[^/]+)", path)
         pattern = f"^{pattern}$"  # Ensure full match
         self.routes.append((re.compile(pattern), param_names, handler, methods))
+        print(self.routes)
 
     def match(self, url, method):
         """

@@ -2,7 +2,8 @@
     Module that has the main class for creating the application object - FastFlask 
 """
 
-from typing import Callable, Dict
+from typing import Callable, Awaitable, List, Dict, Any
+import inspect
 from collections import UserList
 
 import uvicorn
@@ -12,6 +13,8 @@ from fast_flask.response import Response
 from fast_flask.request import Request, current_request
 from fast_flask.router import Router
 
+Middleware = Callable[["Request", "Response", Callable], Awaitable[Any]]
+
 class FastFlask:
     """
         The main class to create the app object.
@@ -19,6 +22,7 @@ class FastFlask:
     """
     def __init__(self):
         self.router = Router()
+        self.middlewares: List[Middleware] = []
 
     def route(self, 
                 path: str,
@@ -28,6 +32,10 @@ class FastFlask:
             self.router.add_route(path, func, methods)
             return func
         return decorator
+    
+    def add_middleware(self, middleware: Middleware):
+        """Register a middleware (executed in order)."""
+        self.middlewares.append(middleware)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """ASGI entry point."""
@@ -38,10 +46,20 @@ class FastFlask:
             handler = self.default_response
         current_request.set(Request.from_scope(scope))
         response = Response()
-        result = await handler(response, **params)
-        if not isinstance(result, Response):
-            response.body = result
-        await response.send(send)
+        async def run_handler():
+            result = await handler(response, **params)
+            if not isinstance(result, Response):
+                response.body = result
+            return response
+
+        # Wrap middlewares
+        async def call_middleware(index=0):
+            if index < len(self.middlewares):
+                return await self.middlewares[index](scope, response, lambda: call_middleware(index + 1))
+            return await run_handler()
+
+        final_response = await call_middleware()
+        await final_response.send(send)
 
     async def default_response(self, response: Response):
         """
