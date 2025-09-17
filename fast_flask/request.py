@@ -48,13 +48,22 @@ class Request:
         query_params = parse_qs(query_string)
         _query_params = {}
         for k, v in query_params.items():
-            vals = []
-            for i in v:
-                if i.isdigit():
-                    vals.append(int(i))
+            # If only one value, store as single value, else as list
+            if len(v) == 1:
+                value = v[0]
+                if value.isdigit():
+                    value = int(value)
                 else:
-                    vals.append(i.decode("utf-8"))
-            _query_params[k.decode("utf-8")] = vals
+                    value = value.decode("utf-8")
+                _query_params[k.decode("utf-8")] = value
+            else:
+                vals = []
+                for i in v:
+                    if i.isdigit():
+                        vals.append(int(i))
+                    else:
+                        vals.append(i.decode("utf-8"))
+                _query_params[k.decode("utf-8")] = vals
         return _query_params
 
 current_request: ContextVar[Request] = ContextVar("current_request")
